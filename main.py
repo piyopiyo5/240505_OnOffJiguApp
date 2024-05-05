@@ -1,11 +1,13 @@
 import tkinter as tk
 from tkinter import filedialog
 import pyautogui
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageChops
 
 # 変数初期化
 RowNumber = 0
-save_path = ""
+save_dir_path = ""
+save_file_path = ""
+save_file_no = "1"
 
 def space_pressed(event):
     if event.keysym == "space":
@@ -44,17 +46,19 @@ def select_folder():
         path_entry.insert(0, folder_path)
         
 def open_file():
-    file_path = f"{path_entry.get()}/screenshot.png"
-    if file_path:
-        image = Image.open(file_path)
+    global save_file_path
+    if save_file_path:
+        image = Image.open(save_file_path)
         image.thumbnail((300, 300))  # 画像をウィンドウサイズ内に縮小する
         photo = ImageTk.PhotoImage(image)
         image_label.config(image=photo, width=300, height=300)  # ウィンドウサイズに合わせて画像サイズを調整
         image_label.image = photo
         
 def take_screenshot():
-    save_path = path_entry.get()
-    if save_path:
+    global save_dir_path, save_file_path, save_file_no
+    save_dir_path = path_entry.get()
+    if save_dir_path:
+        save_file_path = f"{save_dir_path}/screenshot{save_file_no}.png"
         try:
             x1 = int(x1_entry.get())
             y1 = int(y1_entry.get())
@@ -63,13 +67,40 @@ def take_screenshot():
 
             screenshot = pyautogui.screenshot()
             cropped_screenshot = screenshot.crop((x1, y1, x2, y2))
-            cropped_screenshot.save(f"{save_path}/screenshot.png")
+            cropped_screenshot.save(save_file_path)
             open_file()
             status_label.config(text="Screenshot saved successfully!", fg="green")
+            if save_file_no == "1":
+                save_file_no = "2"
+            else:
+                save_file_no = "1"
         except ValueError:
             status_label.config(text="Please enter valid integer values for coordinates.", fg="red")
     else:
         status_label.config(text="Please select a folder to save the screenshot.", fg="red")
+        
+def compare_images():
+    global save_dir_path
+    path1 = f"{save_dir_path}/screenshot1.png"
+    path2 = f"{save_dir_path}/screenshot2.png"
+
+    if path1 and path2:
+        try:
+            image1 = Image.open(path1)
+            image2 = Image.open(path2)
+            
+            if image1.size != image2.size:
+                status_label.config(text="Images have different sizes")
+            else:
+                diff = ImageChops.difference(image1, image2).getbbox()
+                if diff is None:
+                    status_label.config(text="Images are identical")
+                else:
+                    status_label.config(text="Images are different")
+        except Exception as e:
+            status_label.config(text=f"Error: {e}")
+    else:
+        status_label.config(text="Please select two image files")
 
 
 # Tkinterウィンドウの作成
@@ -149,6 +180,11 @@ RowNumber+=1
 screenshot_button = tk.Button(root, text="Take Screenshot", command=take_screenshot)
 screenshot_button.grid(row=RowNumber, column=1, padx=5, pady=5,columnspan=5)
 
+# 比較ボタン
+RowNumber+=1
+compare_button = tk.Button(root, text="Compare", command=compare_images)
+compare_button.grid(row=RowNumber, column=1, padx=5, pady=5,columnspan=5)
+
 # 画像表示用ラベル
 RowNumber+=1
 image_label = tk.Label(root)
@@ -158,7 +194,6 @@ image_label.grid(row=RowNumber, column=1, padx=5, pady=5, columnspan=5)
 RowNumber+=1
 status_label = tk.Label(root, text="")
 status_label.grid(row=RowNumber, column=1, padx=5, pady=5, columnspan=5)
-
 
 # キーボードイベントをバインド
 root.bind('<Key>', space_pressed)  # キーが押されたとき
