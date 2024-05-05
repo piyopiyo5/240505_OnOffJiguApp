@@ -1,15 +1,6 @@
 import tkinter as tk
 import pyautogui
 
-def space_pressed(event):
-    if event.keysym == "space":
-        x, y = root.winfo_pointerx(), root.winfo_pointery()  # ウィンドウ内のカーソル座標を取得
-        position_label.config(text=f'X: {x}, Y: {y}')
-        x_entry.delete(0, tk.END)
-        x_entry.insert(0, x)
-        y_entry.delete(0, tk.END)
-        y_entry.insert(0, y)
-
 def simulate_click():
     try:
         x = int(x_entry.get())
@@ -21,14 +12,10 @@ def simulate_click():
 
 # Tkinterウィンドウの作成
 root = tk.Tk()
-root.title("AutoClicker Ver1.0.0")
+root.title("Click Simulator")
 
 # ウィンドウサイズの設定
-root.geometry("500x500")
-
-# カーソル座標を表示するラベル
-position_label = tk.Label(root, text="")
-position_label.pack(pady=10)
+root.geometry("300x150")
 
 # X座標の入力欄
 x_label = tk.Label(root, text="X Coordinate:")
@@ -49,9 +36,6 @@ click_button.pack(pady=10)
 # ステータス表示用ラベル
 status_label = tk.Label(root, text="")
 status_label.pack()
-
-# キーボードイベントをバインド
-root.bind('<Key>', space_pressed)  # キーが押されたとき
 
 # アプリの実行
 root.mainloop()
