@@ -4,7 +4,11 @@ import pyautogui
 from PIL import Image, ImageTk, ImageChops
 import time
 
-# Global Variavles -------------------------------------------------------------------
+# Constants -------------------------------------------------------------------
+ON = 1
+OFF = 0
+
+# Variavles -------------------------------------------------------------------
 RowNumber = 0
 SetActiveFlg1stTg = False
 SetActiveFlg2ndTg = False
@@ -175,8 +179,9 @@ def CompareImages():
                 if diff is None:
                     status_label.config(text="Images are identical")
                 else:
-                    status_label.config(text="Images are different")
-                    SimulateClick()
+                    status_label.config(text="====Images are different====")
+                    if click_onoff_var.get() == ON:
+                        SimulateClick()
         except Exception as e:
             status_label.config(text=f"Error: {e}")
     else:
@@ -202,12 +207,19 @@ root = tk.Tk()
 root.title("AutoClicker Ver1.0.1")
 
 # ウィンドウサイズの設定
-root.geometry("1920x1080")
+root.geometry("900x1000")
 
 # ClickTarget
 RowNumber+=1
 ClickTarget_label = tk.Label(root, text = "ClickTarget")
 ClickTarget_label.grid(row=RowNumber, column=1, padx=5, pady=5, sticky="w")
+
+RowNumber+=1
+click_onoff_var = tk.IntVar()
+ClickTarget_radiobutton_on = tk.Radiobutton(root, value=ON, variable=click_onoff_var, text="ON")
+ClickTarget_radiobutton_on.grid(row=RowNumber, column=2, padx=5, pady=5, sticky="w")
+ClickTarget_radiobutton_off = tk.Radiobutton(root, value=OFF, variable=click_onoff_var, text="OFF")
+ClickTarget_radiobutton_off.grid(row=RowNumber, column=3, padx=5, pady=5, sticky="w")
 
 RowNumber+=1
 PreWaitTime_label = tk.Label(root, text = "PreWaitTime [s]")
