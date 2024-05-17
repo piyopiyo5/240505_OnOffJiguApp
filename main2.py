@@ -151,6 +151,7 @@ def TakeScreenShot():
             screenshot = pyautogui.screenshot()
             cropped_screenshot = screenshot.crop((x1, y1, x2, y2))
             cropped_screenshot.save(SaveFilePath)
+            open_file(SaveFilePath)
             # open_file()
             # status_label.config(text="Screenshot saved successfully!", fg="green")
             if SaveFileIdx == "1":
@@ -186,6 +187,15 @@ def CompareImages():
             status_label.config(text=f"Error: {e}")
     else:
         status_label.config(text="Please select two image files")
+        
+def open_file(savefilepath):
+    file_path = savefilepath
+    if file_path:
+        image = Image.open(file_path)
+        image.thumbnail((300, 300))  # 画像をウィンドウサイズ内に縮小する
+        photo = ImageTk.PhotoImage(image)
+        image_label.config(image=photo, width=300, height=300)  # ウィンドウサイズに合わせて画像サイズを調整
+        image_label.image = photo
 
 def LoopMain():
     global RunningState
@@ -207,7 +217,8 @@ root = tk.Tk()
 root.title("AutoClicker Ver1.0.1")
 
 # ウィンドウサイズの設定
-root.geometry("900x1000")
+DisplaySize_width, DisplaySize_height = pyautogui.size()
+root.geometry("{}x{}".format(DisplaySize_width,DisplaySize_height))
 
 # ClickTarget
 RowNumber+=1
@@ -329,6 +340,11 @@ ClickCyclesReset_button.grid(row=RowNumber, column=5, padx=5, pady=5)
 RowNumber+=1
 status_label = tk.Label(root, text="")
 status_label.grid(row=RowNumber, column=2, padx=5, pady=5, columnspan=5)
+
+# 画像表示用ラベル
+RowNumber+=1
+image_label = tk.Label(root)
+image_label.grid(row=RowNumber, column=2, padx=5, pady=5, columnspan=5)
 
 # キーボードイベントをバインド
 root.bind('<Key>', ReactToKey)  # キーが押されたとき
